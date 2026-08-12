@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: var(--background);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --animate-gradient-x: gradient-x 15s ease infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --font-sans: 'Poppins', sans-serif;
+  --font-serif: 'Source Serif 4', serif;
+  --radius: 1rem;
+}
+
+:root {
+  /* Strict grayscale */
+  --background: hsl(0, 0%, 5%);
+  --primary: hsl(0, 0%, 100%);
+  --secondary: hsl(0, 0%, 80%);
+  --accent: hsl(0, 0%, 50%);
+  --text-primary: hsl(0, 0%, 100%);
+  --text-secondary: hsl(0, 0%, 80%);
+}
+
+@layer base {
+  body {
+    @apply bg-background text-[var(--text-primary)] antialiased min-h-screen selection:bg-white/30 font-sans;
+    transition: background-color 1s ease-in-out;
+    margin: 0;
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .liquid-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.15) 20%, transparent 40%, transparent 60%, rgba(255, 255, 255, 0.15) 80%, rgba(255, 255, 255, 0.45) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .liquid-glass-strong {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(50px);
+    border: none;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .liquid-glass-strong::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.2) 20%, transparent 40%, transparent 60%, rgba(255, 255, 255, 0.2) 80%, rgba(255, 255, 255, 0.5) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-white/20 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-white/30;
+}
