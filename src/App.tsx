@@ -1,23 +1,36 @@
-import { useState } from 'react';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Component as AiLoader } from './components/ui/ai-loader';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { PlayerProvider } from './contexts/PlayerContext';
 import { AmbientBackground } from './components/AmbientBackground';
 import { LeftPanel } from './components/LeftPanel';
 import { RightPanel } from './components/RightPanel';
 import { generatePlaylist, type Playlist } from './services/ai/playlistGenerator';
-import { type VibeAnalysis, analyzeVibe } from './services/ai/vibeAnalyzer';
+import { type VibeAnalysis, analyzeVibe, getThemeForVibeSync } from './services/ai/vibeAnalyzer';
 import { MusicPlayer } from './components/MusicPlayer';
 
 const MainContent = () => {
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [analysis, setAnalysis] = useState<VibeAnalysis | null>(null);
+  const { setInstantTheme, setIsGenerating } = useTheme();
 
   const handleGenerate = async (vibeText: string) => {
-    const vibeAnalysis = await analyzeVibe(vibeText);
-    setAnalysis(vibeAnalysis);
-    
-    const generatedPlaylist = await generatePlaylist(vibeAnalysis);
-    setPlaylist(generatedPlaylist);
+    // 1. Instant Visual Feedback! Change color immediately before AI processes.
+    setInstantTheme(getThemeForVibeSync(vibeText));
+    setIsGenerating(true);
+
+    try {
+      const vibeAnalysis = await analyzeVibe(vibeText);
+      setAnalysis(vibeAnalysis);
+      
+      const generatedPlaylist = await generatePlaylist(vibeAnalysis);
+      setPlaylist(generatedPlaylist);
+    } catch(e) {
+      console.error(e);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleReset = () => {
@@ -49,9 +62,31 @@ const MainContent = () => {
 };
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <ThemeProvider>
       <PlayerProvider>
+        <AnimatePresence>
+          {isLoading && (
+            <motion.div
+              key="loader"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+            >
+              <AiLoader />
+            </motion.div>
+          )}
+        </AnimatePresence>
         <MainContent />
       </PlayerProvider>
     </ThemeProvider>

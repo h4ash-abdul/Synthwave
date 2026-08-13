@@ -1,6 +1,9 @@
 import React from 'react';
+import { useTheme } from '../contexts/ThemeContext';
 
 export const AmbientBackground: React.FC = () => {
+  const { theme } = useTheme();
+
   return (
     <div className="fixed inset-0 z-0 overflow-hidden bg-[#021812] pointer-events-none">
       <video
@@ -22,8 +25,28 @@ export const AmbientBackground: React.FC = () => {
         }}
       />
 
+      {/* Dynamic Color Atmosphere - Even Full Screen Tint */}
+      <div 
+        className="absolute inset-0 pointer-events-none mix-blend-color"
+        style={{
+          backgroundColor: theme?.primary || '#10b981',
+          opacity: 0.35,
+          transition: 'background-color 2s ease-in-out'
+        }}
+      />
+      
+      {/* Dynamic Color Atmosphere - Subtle Overlay Glow */}
+      <div 
+        className="absolute inset-0 pointer-events-none mix-blend-screen"
+        style={{
+          backgroundColor: theme?.secondary || '#047857',
+          opacity: 0.15,
+          transition: 'background-color 2s ease-in-out'
+        }}
+      />
+
       {/* Vignette Overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)] pointer-events-none" />
     </div>
   );
 };

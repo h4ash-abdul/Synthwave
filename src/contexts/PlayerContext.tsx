@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, type ReactNode } from 'react';
 import type { Track } from '../services/ai/playlistGenerator';
 
 interface PlayerContextType {
@@ -20,9 +20,24 @@ const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.8);
+  const [volume, setVolumeState] = useState(0.8);
   const [progress, setProgress] = useState(0);
   const [queue, setQueue] = useState<Track[]>([]);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Safe royalty-free demo track for playback
+    audioRef.current = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_228812c6a0.mp3');
+    audioRef.current.loop = true;
+    audioRef.current.volume = 0.8;
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    };
+  }, []);
 
   const playTrack = (track: Track, newQueue?: Track[]) => {
     setCurrentTrack(track);
@@ -31,11 +46,27 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     if (newQueue) {
       setQueue(newQueue);
     }
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => {});
+    }
   };
 
   const togglePlay = () => {
     if (currentTrack) {
-      setIsPlaying(!isPlaying);
+      const nextState = !isPlaying;
+      setIsPlaying(nextState);
+      if (audioRef.current) {
+        if (nextState) audioRef.current.play().catch(() => {});
+        else audioRef.current.pause();
+      }
+    }
+  };
+
+  const setVolume = (vol: number) => {
+    setVolumeState(vol);
+    if (audioRef.current) {
+      audioRef.current.volume = vol;
     }
   };
 
