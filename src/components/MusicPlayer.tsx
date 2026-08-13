@@ -72,7 +72,6 @@ export const MusicPlayer: React.FC = () => {
                 src={currentTrack.coverArt} 
                 alt={currentTrack.title} 
                 className={`w-12 h-12 rounded-xl object-cover shadow-lg ${isPlaying ? 'animate-[pulse-slow_4s_ease-in-out_infinite]' : ''}`}
-                style={{ filter: 'grayscale(100%)' }}
               />
               <div className="flex flex-col min-w-0">
                 <span className="text-white font-medium truncate text-sm">{currentTrack.title}</span>

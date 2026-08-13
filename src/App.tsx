@@ -26,20 +26,20 @@ const MainContent = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col lg:flex-row p-4 lg:p-6 gap-6 z-10 w-full overflow-hidden">
+    <div className="relative min-h-screen flex flex-col p-4 lg:p-6 z-10 w-full overflow-hidden">
       <AmbientBackground />
       
-      <div className="flex flex-col lg:flex-row w-full gap-6 z-10 h-full min-h-[calc(100vh-3rem)]">
-        <div className="w-full lg:w-[52%] flex flex-col h-full">
+      <div className="flex flex-col lg:flex-row w-full gap-6 z-10 flex-1">
+        <div className="w-full lg:w-[52%] flex flex-col">
           <LeftPanel onGenerate={handleGenerate} onReset={handleReset} />
-          <div className="lg:hidden mt-auto">
+          <div className="lg:hidden w-full">
             <MusicPlayer />
           </div>
         </div>
         
-        <div className="hidden lg:flex lg:w-[48%] flex-col h-full relative z-20">
+        <div className="hidden lg:flex lg:w-[48%] flex-col relative z-20">
           <RightPanel playlist={playlist} analysis={analysis} />
-          <div className="mt-auto">
+          <div className="w-full">
             <MusicPlayer />
           </div>
         </div>

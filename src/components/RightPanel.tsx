@@ -32,8 +32,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ playlist, analysis }) =>
         </button>
       </div>
 
-      {/* Bottom Feature Section / Playlist View */}
-      <div className="liquid-glass p-4 rounded-[2.5rem] mt-auto flex flex-col gap-4 relative overflow-hidden flex-1 max-h-[600px]">
+      {/* Playlist View */}
+      <div className="liquid-glass p-4 rounded-[2.5rem] flex flex-col gap-4 relative overflow-hidden mt-auto max-h-[600px] min-h-[300px]">
         <AnimatePresence mode="wait">
           {!playlist ? (
             <motion.div 
@@ -75,7 +75,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ playlist, analysis }) =>
                       onClick={() => playTrack(track, playlist.tracks)}
                     >
                       <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0">
-                        <img src={track.coverArt} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" style={{ filter: 'grayscale(100%)' }} />
+                        <img src={track.coverArt} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                         <div className={`absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px] transition-opacity ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                           <Play className="w-4 h-4 text-white ml-0.5" fill="currentColor" />
                         </div>

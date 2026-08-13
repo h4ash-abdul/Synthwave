@@ -19,7 +19,7 @@ export const LeftPanel: React.FC<{ onGenerate: (vibe: string) => void, onReset: 
   };
 
   return (
-    <div className="liquid-glass-strong rounded-3xl w-full flex-1 flex flex-col p-8 lg:p-12 relative overflow-hidden">
+    <div className="liquid-glass-strong rounded-[2.5rem] w-full flex-1 flex flex-col p-8 lg:p-12 relative overflow-hidden">
       {/* Top Nav */}
       <div className="flex justify-between items-center w-full z-10">
         <div className="flex items-center gap-3">
@@ -30,8 +30,6 @@ export const LeftPanel: React.FC<{ onGenerate: (vibe: string) => void, onReset: 
           <RotateCcw className="w-4 h-4 text-white" />
         </button>
       </div>
-
-      {/* Center Hero */}
       <div className="flex-1 flex flex-col items-center justify-center text-center mt-12 mb-20 z-10">
         
         <h1 className="text-5xl lg:text-7xl font-sans font-medium text-white tracking-[-0.05em] leading-[1.1] max-w-2xl lowercase">
