@@ -78,7 +78,7 @@ export const LeftPanel: React.FC<{ onGenerate: (vibe: string) => void, onReset: 
             onChange={(e) => setVibe(e.target.value)}
             disabled={isGenerating}
             placeholder="Describe your vibe (e.g. Neon Tokyo night)..."
-            className="liquid-glass-strong rounded-full w-full pl-6 pr-32 py-4 text-white placeholder:text-white/50 outline-none text-lg font-sans focus:scale-[1.02] transition-transform backdrop-blur-[60px]"
+            className="liquid-glass-strong rounded-full w-full pl-6 pr-40 py-4 text-white placeholder:text-white/50 outline-none text-lg font-sans focus:scale-[1.02] transition-transform backdrop-blur-[60px]"
           />
           <button 
             type="submit"

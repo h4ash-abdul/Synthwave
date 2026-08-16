@@ -1,24 +1,49 @@
-import { cn } from "../../lib/utils";
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export const Component = ({ className }: { className?: string }) => {
+const words = [
+  "Hello",
+  "Bonjour",
+  "Ciao",
+  "Olà",
+  "やあ",
+  "Hallå",
+  "Guten tag",
+  "Hallo",
+  "Namaste"
+];
+
+export const Component = () => {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (index === words.length - 1) return;
+    
+    // Faster cycling (220ms per word) for a punchier intro
+    const timeout = setTimeout(() => {
+      setIndex(index + 1);
+    }, index === 0 ? 800 : 220); 
+
+    return () => clearTimeout(timeout);
+  }, [index]);
+
   return (
-    <div className={cn("flex flex-col items-center justify-center gap-6", className)}>
-      <div className="loader-wrapper flex flex-col items-center justify-center relative">
-        <div className="flex gap-2 mb-8">
-          <span className="loader-letter text-2xl font-light tracking-[0.2em] text-emerald-400/80 uppercase">G</span>
-          <span className="loader-letter text-2xl font-light tracking-[0.2em] text-emerald-400/80 uppercase">e</span>
-          <span className="loader-letter text-2xl font-light tracking-[0.2em] text-emerald-400/80 uppercase">n</span>
-          <span className="loader-letter text-2xl font-light tracking-[0.2em] text-emerald-400/80 uppercase">e</span>
-          <span className="loader-letter text-2xl font-light tracking-[0.2em] text-emerald-400/80 uppercase">r</span>
-          <span className="loader-letter text-2xl font-light tracking-[0.2em] text-emerald-400/80 uppercase">a</span>
-          <span className="loader-letter text-2xl font-light tracking-[0.2em] text-emerald-400/80 uppercase">t</span>
-          <span className="loader-letter text-2xl font-light tracking-[0.2em] text-emerald-400/80 uppercase">i</span>
-          <span className="loader-letter text-2xl font-light tracking-[0.2em] text-emerald-400/80 uppercase">n</span>
-          <span className="loader-letter text-2xl font-light tracking-[0.2em] text-emerald-400/80 uppercase">g</span>
-        </div>
-
-        <div className="loader"></div>
-      </div>
+    <div className="flex h-full w-full items-center justify-center">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -15 }}
+          transition={{ duration: 0.12, ease: "easeOut" }}
+          className="flex items-center text-4xl md:text-5xl font-sans font-semibold tracking-tight"
+          style={{ color: '#10b981' }}
+        >
+          {/* Synthwave styled dot indicator */}
+          <span className="mr-4 h-3 w-3 rounded-full bg-[#10b981]" />
+          {words[index]}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };

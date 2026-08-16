@@ -65,9 +65,11 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Wait for the words preloader to finish its cycle before sliding up
+    // Total time = 800ms (first word) + (8 words * 220ms) = ~2560ms
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2500);
+    }, 2800);
     return () => clearTimeout(timer);
   }, []);
 
@@ -78,16 +80,33 @@ function App() {
           {isLoading && (
             <motion.div
               key="loader"
-              initial={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0a0a]"
             >
-              <AiLoader />
+              {/* Text Layer */}
+              <motion.div 
+                className="z-10 relative"
+                initial={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -30, x: -30 }}
+                transition={{ duration: 0.3, ease: "easeIn" }}
+              >
+                <AiLoader />
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
-        <MainContent />
+        <motion.div
+          initial="loading"
+          animate={isLoading ? "loading" : "visible"}
+          variants={{
+            loading: { clipPath: "circle(0% at 85% 75%)", filter: "blur(10px)", scale: 1.05 },
+            visible: { clipPath: "circle(150% at 85% 75%)", filter: "blur(0px)", scale: 1, transition: { duration: 1.5, ease: [0.76, 0, 0.24, 1] } }
+          }}
+          className="w-full min-h-screen bg-[#0a0a0a]"
+        >
+          <MainContent />
+        </motion.div>
       </PlayerProvider>
     </ThemeProvider>
   );
