@@ -46,7 +46,7 @@ export const LeftPanel: React.FC<{ onGenerate: (vibe: string) => void, onReset: 
   };
 
   return (
-    <div className="liquid-glass rounded-[2.5rem] w-full flex-1 flex flex-col p-8 lg:p-12 relative overflow-hidden">
+    <div className="liquid-glass rounded-[2.5rem] w-full flex-1 flex flex-col p-6 lg:p-8 relative overflow-hidden">
       {/* Top Nav */}
       <div className="flex justify-end items-center w-full z-10">
         <button type="button" onClick={handleClear} className="liquid-glass rounded-full px-5 py-2 flex items-center gap-2 hover:scale-105 transition-transform">
@@ -54,7 +54,7 @@ export const LeftPanel: React.FC<{ onGenerate: (vibe: string) => void, onReset: 
           <RotateCcw className="w-4 h-4 text-white" />
         </button>
       </div>
-      <div className="flex-1 flex flex-col items-center justify-center text-center mt-12 mb-20 z-10 w-full max-w-4xl mx-auto">
+      <div className="flex-1 flex flex-col items-center justify-center text-center mt-6 mb-10 z-10 w-full max-w-4xl mx-auto">
         
         <Shuffle
           text="SYNTHWAVE"
@@ -68,10 +68,10 @@ export const LeftPanel: React.FC<{ onGenerate: (vibe: string) => void, onReset: 
           colorFrom="#10b981"
           colorTo="#ffffff"
           tag="h1"
-          className="text-7xl lg:text-8xl font-sans font-semibold tracking-[-0.05em] leading-[1.1]"
+          className="text-6xl lg:text-7xl font-sans font-semibold tracking-[-0.05em] leading-[1.1]"
         />
 
-        <form onSubmit={handleSubmit} className="mt-12 w-full max-w-md relative flex items-center justify-center group">
+        <form onSubmit={handleSubmit} className="mt-6 w-full max-w-md relative flex items-center justify-center group">
           <input
             type="text"
             value={vibe}
@@ -121,7 +121,7 @@ export const LeftPanel: React.FC<{ onGenerate: (vibe: string) => void, onReset: 
         </div>
 
         {/* Vibe Selection Wheel */}
-        <div className="h-48 w-full max-w-md mx-auto mt-8 relative">
+        <div className="h-48 w-full max-w-md mx-auto mt-4 relative">
           <OptionWheel
             items={[
               'Neon Night Drive',
