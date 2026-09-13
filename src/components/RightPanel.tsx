@@ -6,6 +6,7 @@ import { usePlayer } from '../contexts/PlayerContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
+import { getStoredAccessToken, logoutSpotify, initiateSpotifyLogin } from '../services/spotifyAuth';
 
 interface RightPanelProps {
   playlist: Playlist | null;
@@ -63,9 +64,30 @@ export const RightPanel: React.FC<RightPanelProps> = ({ playlist, analysis }) =>
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full gap-6">
+    <div className="flex-1 flex flex-col min-h-0 gap-6">
       {/* Top Bar */}
-      <div className="flex justify-end items-center w-full relative">
+      <div className="flex justify-between items-center w-full relative">
+        {/* Spotify Connection Pill */}
+        {getStoredAccessToken() ? (
+          <button 
+            onClick={logoutSpotify}
+            title="Click to disconnect / switch Spotify account"
+            className="liquid-glass rounded-full px-3.5 py-1.5 flex items-center gap-2 hover:bg-white/10 transition-all border border-[#1DB954]/30 group"
+          >
+            <span className="w-2 h-2 rounded-full bg-[#1DB954] shadow-[0_0_8px_#1DB954]" />
+            <span className="text-white/80 group-hover:text-white text-xs font-medium">Spotify Linked</span>
+            <span className="text-white/40 group-hover:text-red-400 text-[10px] ml-1 transition-colors">(Reconnect)</span>
+          </button>
+        ) : (
+          <button 
+            onClick={initiateSpotifyLogin}
+            className="liquid-glass rounded-full px-3.5 py-1.5 flex items-center gap-2 hover:bg-[#1DB954]/20 transition-all border border-white/10 group"
+          >
+            <svg className="w-3.5 h-3.5 text-[#1DB954]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.24 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15.001 10.62 18.72 12.9c.36.181.54.78.241 1.14zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.239.54-.959.72-1.56.3z"/></svg>
+            <span className="text-white/80 group-hover:text-white text-xs font-medium">Connect Spotify</span>
+          </button>
+        )}
+
         <div className="relative">
           <button 
             onClick={() => setShowExport(!showExport)}

@@ -16,7 +16,7 @@ export interface VibeAnalysis {
   theme: VibeTheme;
 }
 
-const THEMES: Record<string, VibeTheme> = {
+export const THEMES: Record<string, VibeTheme> = {
   jungle: {
     primary: '#10b981',
     secondary: '#047857',

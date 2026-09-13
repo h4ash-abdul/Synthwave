@@ -1,4 +1,6 @@
 import type { VibeAnalysis } from './vibeAnalyzer';
+import { searchSpotifyTrack } from '../spotifyApi';
+import { getStoredAccessToken } from '../spotifyAuth';
 
 export interface Track {
   id: string;
@@ -6,6 +8,8 @@ export interface Track {
   artist: string;
   duration: number; // in seconds
   coverArt: string;
+  audioUrl?: string;
+  spotifyUri?: string;
 }
 
 export interface Playlist {
@@ -16,71 +20,69 @@ export interface Playlist {
 }
 
 const CYBERPUNK_TRACKS: Track[] = [
-  { id: 'c1', title: 'Neon Rain', artist: 'Night Drive', duration: 245, coverArt: 'https://images.unsplash.com/photo-1555580399-4c17fb1d6688?w=300&q=80' },
-  { id: 'c2', title: 'City of Glass', artist: 'Kavinsky Clone', duration: 198, coverArt: 'https://images.unsplash.com/photo-1517436073-3b1b1b4b9b9b?w=300&q=80' },
-  { id: 'c3', title: 'Midnight Run', artist: 'Synthwave 1984', duration: 312, coverArt: 'https://images.unsplash.com/photo-1533230491823-376518a4a580?w=300&q=80' },
-  { id: 'c4', title: 'Cybernetic Love', artist: 'Data Romance', duration: 210, coverArt: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300&q=80' },
+  { id: 'c1', title: 'Nightcall', artist: 'Kavinsky', duration: 259, coverArt: '' },
+  { id: 'c2', title: 'Resonance', artist: 'HOME', duration: 212, coverArt: '' },
+  { id: 'c3', title: 'A Real Hero', artist: 'College, Electric Youth', duration: 267, coverArt: '' },
+  { id: 'c4', title: 'Under Your Spell', artist: 'Desire', duration: 232, coverArt: '' },
 ];
 
 const CHILL_TRACKS: Track[] = [
-  { id: 'l1', title: 'Morning Brew', artist: 'Sunday Jazz', duration: 180, coverArt: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300&q=80' },
-  { id: 'l2', title: 'Soft Rain on Window', artist: 'Lofi Girl', duration: 240, coverArt: 'https://images.unsplash.com/photo-1518022525094-7128f731118f?w=300&q=80' },
-  { id: 'l3', title: 'Comfort Zone', artist: 'Warm Beats', duration: 215, coverArt: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=300&q=80' },
-  { id: 'l4', title: 'Fireside', artist: 'Mellow Tunes', duration: 195, coverArt: 'https://images.unsplash.com/photo-1481026469463-66327c86e544?w=300&q=80' },
+  { id: 'l1', title: 'Locket', artist: 'Crumb', duration: 317, coverArt: '' },
+  { id: 'l2', title: 'Chamber Of Reflection', artist: 'Mac DeMarco', duration: 231, coverArt: '' },
+  { id: 'l3', title: 'Space Song', artist: 'Beach House', duration: 320, coverArt: '' },
+  { id: 'l4', title: 'Show Me How', artist: 'Men I Trust', duration: 215, coverArt: '' },
 ];
 
 const ORGANIC_TRACKS: Track[] = [
-  { id: 'o1', title: 'Canopy', artist: 'Jungle Beats', duration: 254, coverArt: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=300&q=80' },
-  { id: 'o2', title: 'Rainforest Echo', artist: 'Nature Electronica', duration: 310, coverArt: 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?w=300&q=80' },
-  { id: 'o3', title: 'Moss & Vine', artist: 'Earth Pulse', duration: 198, coverArt: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=300&q=80' },
-  { id: 'o4', title: 'Undergrowth', artist: 'Deep Roots', duration: 245, coverArt: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=300&q=80' },
+  { id: 'o1', title: 'Sunrise', artist: 'Norah Jones', duration: 200, coverArt: '' },
+  { id: 'o2', title: 'Holocene', artist: 'Bon Iver', duration: 336, coverArt: '' },
+  { id: 'o3', title: 'Heartbeats', artist: 'José González', duration: 160, coverArt: '' },
+  { id: 'o4', title: 'Bloom', artist: 'The Paper Kites', duration: 210, coverArt: '' },
 ];
 
 const INTIMATE_TRACKS: Track[] = [
-  { id: 'i1', title: 'Velvet', artist: 'Soul Sessions', duration: 215, coverArt: 'https://images.unsplash.com/photo-1518621736915-f3b8c41bfd00?w=300&q=80' },
-  { id: 'i2', title: 'Candlelight', artist: 'Warm Notes', duration: 185, coverArt: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=300&q=80' },
-  { id: 'i3', title: 'Whisper', artist: 'Quiet Moments', duration: 240, coverArt: 'https://images.unsplash.com/photo-1474552226712-ac0f0961a954?w=300&q=80' },
-  { id: 'i4', title: 'Close', artist: 'Late R&B', duration: 198, coverArt: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=300&q=80' },
+  { id: 'i1', title: 'Telepatía', artist: 'Kali Uchis', duration: 160, coverArt: '' },
+  { id: 'i2', title: 'Get You', artist: 'Daniel Caesar', duration: 278, coverArt: '' },
+  { id: 'i3', title: 'Pink + White', artist: 'Frank Ocean', duration: 184, coverArt: '' },
+  { id: 'i4', title: 'Japanese Denim', artist: 'Daniel Caesar', duration: 270, coverArt: '' },
 ];
 
 const DEEP_TRACKS: Track[] = [
-  { id: 'dp1', title: 'Abyss', artist: 'Oceanic', duration: 320, coverArt: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=300&q=80' },
-  { id: 'dp2', title: 'Currents', artist: 'Submerged', duration: 275, coverArt: 'https://images.unsplash.com/photo-1551244072-5d12893278ab?w=300&q=80' },
-  { id: 'dp3', title: 'Drifting', artist: 'Tidal Wave', duration: 210, coverArt: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=300&q=80' },
-  { id: 'dp4', title: 'Midnight Sea', artist: 'Blue Depth', duration: 290, coverArt: 'https://images.unsplash.com/photo-1498623116890-37e912163d5d?w=300&q=80' },
+  { id: 'dp1', title: 'Innerbloom', artist: 'RÜFÜS DU SOL', duration: 578, coverArt: '' },
+  { id: 'dp2', title: 'Opus', artist: 'Eric Prydz', duration: 543, coverArt: '' },
+  { id: 'dp3', title: 'Strobe', artist: 'deadmau5', duration: 637, coverArt: '' },
+  { id: 'dp4', title: 'Xtal', artist: 'Aphex Twin', duration: 294, coverArt: '' },
 ];
 
 const SUNSET_TRACKS: Track[] = [
-  { id: 's1', title: 'Golden Hour', artist: 'Fading Light', duration: 230, coverArt: 'https://images.unsplash.com/photo-1494548162494-384bba4ab999?w=300&q=80' },
-  { id: 's2', title: 'Warmth', artist: 'Sun Chasers', duration: 195, coverArt: 'https://images.unsplash.com/photo-1470043201067-764120126f5e?w=300&q=80' },
-  { id: 's3', title: 'Dusk', artist: 'Horizon', duration: 250, coverArt: 'https://images.unsplash.com/photo-1414609245224-afa02bfb3fda?w=300&q=80' },
-  { id: 's4', title: 'Last Rays', artist: 'Evening Sky', duration: 210, coverArt: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&q=80' },
+  { id: 's1', title: 'The Less I Know The Better', artist: 'Tame Impala', duration: 216, coverArt: '' },
+  { id: 's2', title: 'Feels Like We Only Go Backwards', artist: 'Tame Impala', duration: 192, coverArt: '' },
+  { id: 's3', title: 'Walking On A Dream', artist: 'Empire of the Sun', duration: 196, coverArt: '' },
+  { id: 's4', title: 'Electric Feel', artist: 'MGMT', duration: 229, coverArt: '' },
 ];
 
 const MYSTERIOUS_TRACKS: Track[] = [
-  { id: 'm1', title: 'Shadows', artist: 'Dark Ambient', duration: 310, coverArt: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300&q=80' },
-  { id: 'm2', title: 'Echoes in the Dark', artist: 'Void', duration: 285, coverArt: 'https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?w=300&q=80' },
-  { id: 'm3', title: 'Midnight', artist: 'The Unknown', duration: 240, coverArt: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=300&q=80' },
-  { id: 'm4', title: 'Secrets', artist: 'Veil', duration: 275, coverArt: 'https://images.unsplash.com/photo-1502481851512-e9e2529bfbf9?w=300&q=80' },
+  { id: 'm1', title: 'Teardrop', artist: 'Massive Attack', duration: 329, coverArt: '' },
+  { id: 'm2', title: 'Glory Box', artist: 'Portishead', duration: 308, coverArt: '' },
+  { id: 'm3', title: 'Angel', artist: 'Massive Attack', duration: 378, coverArt: '' },
+  { id: 'm4', title: 'Roads', artist: 'Portishead', duration: 304, coverArt: '' },
 ];
 
 const HYPE_TRACKS: Track[] = [
-  { id: 'h1', title: 'Adrenaline', artist: 'Pulse Rate', duration: 205, coverArt: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=300&q=80' },
-  { id: 'h2', title: 'Max Output', artist: 'Overdrive', duration: 190, coverArt: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=300&q=80' },
-  { id: 'h3', title: 'Ignite', artist: 'Firestarter', duration: 220, coverArt: 'https://images.unsplash.com/photo-1460355976672-71c3f0a4bdac?w=300&q=80' },
-  { id: 'h4', title: 'Power Surge', artist: 'Voltage', duration: 215, coverArt: 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=300&q=80' },
+  { id: 'h1', title: 'HUMBLE.', artist: 'Kendrick Lamar', duration: 177, coverArt: '' },
+  { id: 'h2', title: 'SICKO MODE', artist: 'Travis Scott', duration: 312, coverArt: '' },
+  { id: 'h3', title: 'Praise The Lord', artist: 'A$AP Rocky', duration: 205, coverArt: '' },
+  { id: 'h4', title: 'XO Tour Llif3', artist: 'Lil Uzi Vert', duration: 182, coverArt: '' },
 ];
 
 const DEFAULT_TRACKS: Track[] = [
-  { id: 'd1', title: 'Atmospheric Entry', artist: 'Deep Space', duration: 250, coverArt: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300&q=80' },
-  { id: 'd2', title: 'Pulse', artist: 'Electronic Mind', duration: 220, coverArt: 'https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=300&q=80' },
-  { id: 'd3', title: 'Flow State', artist: 'The Grid', duration: 305, coverArt: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=300&q=80' },
-  { id: 'd4', title: 'Signals', artist: 'Unknown', duration: 190, coverArt: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=300&q=80' },
+  { id: 'd1', title: 'Blinding Lights', artist: 'The Weeknd', duration: 200, coverArt: '' },
+  { id: 'd2', title: 'Midnight City', artist: 'M83', duration: 243, coverArt: '' },
+  { id: 'd3', title: 'Starboy', artist: 'The Weeknd', duration: 230, coverArt: '' },
+  { id: 'd4', title: 'Kids', artist: 'MGMT', duration: 302, coverArt: '' },
 ];
 
 export const generatePlaylist = async (analysis: VibeAnalysis): Promise<Playlist> => {
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  
   let tracks = DEFAULT_TRACKS;
   let title = "Generated Vibe";
   
@@ -96,8 +98,25 @@ export const generatePlaylist = async (analysis: VibeAnalysis): Promise<Playlist
     default: tracks = DEFAULT_TRACKS; title = "Atmospheric Journey"; break;
   }
 
-  // Adjust title based on the original vibe keywords occasionally, or just use the mapped title
-  // For simplicity, we just use the mapped title.
+  // If Spotify is linked, augment tracks with real metadata
+  if (getStoredAccessToken()) {
+    tracks = await Promise.all(tracks.map(async (t, index) => {
+      const spotifyData = await searchSpotifyTrack(t.title, t.artist);
+      const fallbackAudio = `/audio/track${(index % 4) + 1}.mp3`;
+      return {
+        ...t,
+        ...spotifyData,
+        audioUrl: spotifyData.audioUrl || fallbackAudio
+      };
+    }));
+  } else {
+    // Fallback images and local audio files if not linked to spotify
+    tracks = tracks.map((t, index) => ({
+      ...t,
+      coverArt: 'https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=300&q=80',
+      audioUrl: `/audio/track${(index % 4) + 1}.mp3`
+    }));
+  }
 
   return {
     id: `playlist-${Date.now()}`,
