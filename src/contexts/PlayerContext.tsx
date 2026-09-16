@@ -15,6 +15,8 @@ interface PlayerContextType {
   nextTrack: () => void;
   prevTrack: () => void;
   deviceId: string | null;
+  useSpotifyEmbed: boolean;
+  setUseSpotifyEmbed: (val: boolean) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -26,6 +28,7 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [progress, setProgress] = useState(0);
   const [queue, setQueue] = useState<Track[]>([]);
   const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [useSpotifyEmbed, setUseSpotifyEmbed] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const spotifyPlayerRef = useRef<any>(null);
@@ -190,6 +193,20 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
     
     try {
+      // First, attempt to transfer playback to this device to make it active
+      try {
+        await fetch('https://api.spotify.com/v1/me/player', {
+          method: 'PUT',
+          body: JSON.stringify({ device_ids: [targetDeviceId], play: false }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+        });
+      } catch (tErr) {
+        console.warn('Transfer playback notice:', tErr);
+      }
+
       const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${targetDeviceId}`, {
         method: 'PUT',
         body: JSON.stringify({ uris: [uri] }),
@@ -200,8 +217,9 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       });
 
       if (!response.ok) {
-        console.warn('Spotify play returned not ok status:', response.status);
-        throw new Error('Spotify playback failed');
+        const errDetails = await response.text();
+        console.warn('Spotify play returned not ok status:', response.status, errDetails);
+        throw new Error(`Spotify playback failed: ${response.status} ${errDetails}`);
       }
 
       // Start manual progress polling since state_changed isn't frequent enough
@@ -215,8 +233,12 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
       }, 1000);
     } catch (e) {
-      console.warn('Spotify playback failed, falling back to audio file:', e);
-      playFallback(track);
+      console.warn('Spotify playback failed, switching to Spotify Embed player:', e);
+      if (track.spotifyUri) {
+        setUseSpotifyEmbed(true);
+      } else {
+        playFallback(track);
+      }
     }
   };
 
@@ -232,6 +254,10 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       audioRef.current.pause();
     }
     clearSpotifyInterval();
+
+    if (useSpotifyEmbed && track.spotifyUri) {
+      return;
+    }
 
     if (spotifyPlayerRef.current && typeof spotifyPlayerRef.current.activateElement === 'function') {
       spotifyPlayerRef.current.activateElement();
@@ -314,7 +340,9 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         seek,
         nextTrack,
         prevTrack,
-        deviceId
+        deviceId,
+        useSpotifyEmbed,
+        setUseSpotifyEmbed
       }}
     >
       {children}
