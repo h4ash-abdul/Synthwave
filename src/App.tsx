@@ -10,10 +10,13 @@ import { generatePlaylist, type Playlist } from './services/ai/playlistGenerator
 import { type VibeAnalysis, analyzeVibe, getThemeForVibeSync } from './services/ai/vibeAnalyzer';
 import { MusicPlayer } from './components/MusicPlayer';
 
+import { FavoritesProvider, useFavorites } from './contexts/FavoritesContext';
+
 const MainContent = () => {
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [analysis, setAnalysis] = useState<VibeAnalysis | null>(null);
   const { setInstantTheme, setIsGenerating } = useTheme();
+  const { favorites } = useFavorites();
 
   const handleGenerate = async (vibeText: string) => {
     // 1. Instant Visual Feedback! Change color immediately before AI processes.
@@ -33,6 +36,32 @@ const MainContent = () => {
     }
   };
 
+  const handleShowFavorites = () => {
+    setPlaylist({
+      id: 'favorites',
+      title: 'Your Favorites',
+      description: 'Your personal collection of saved tracks.',
+      tracks: favorites
+    });
+    const favTheme = {
+      primary: '#f43f5e',
+      secondary: '#e11d48',
+      accent: '#fb7185',
+      background: 'linear-gradient(to bottom, #4c0519, #250914)',
+      atmosphere: 'Personal curated mix',
+      effects: ['glow']
+    };
+    setAnalysis({
+      mood: 'Nostalgic',
+      genre: 'Favorites',
+      energy: 'Mixed',
+      bpmRange: [80, 140],
+      tags: ['FAVORITES', 'PERSONAL'],
+      theme: favTheme
+    });
+    setInstantTheme(favTheme);
+  };
+
   const handleReset = () => {
     setPlaylist(null);
     setAnalysis(null);
@@ -44,7 +73,7 @@ const MainContent = () => {
       
       <div className="flex flex-col lg:flex-row w-full gap-6 z-10 flex-1 min-h-0">
         <div className="w-full lg:w-[52%] flex flex-col min-h-0">
-          <LeftPanel onGenerate={handleGenerate} onReset={handleReset} />
+          <LeftPanel onGenerate={handleGenerate} onReset={handleReset} onShowFavorites={handleShowFavorites} />
           <div className="lg:hidden w-full shrink-0">
             <MusicPlayer />
           </div>
@@ -130,40 +159,42 @@ function App() {
 
   return (
     <ThemeProvider>
-      <PlayerProvider>
-        <AnimatePresence>
-          {isLoading && (
-            <motion.div
-              key="loader"
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0a0a]"
-            >
-              <motion.div 
-                className="z-10 relative"
-                initial={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -30, x: -30 }}
-                transition={{ duration: 0.3, ease: "easeIn" }}
+      <FavoritesProvider>
+        <PlayerProvider>
+          <AnimatePresence>
+            {isLoading && (
+              <motion.div
+                key="loader"
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0a0a]"
               >
-                <AiLoader />
+                <motion.div 
+                  className="z-10 relative"
+                  initial={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -30, x: -30 }}
+                  transition={{ duration: 0.3, ease: "easeIn" }}
+                >
+                  <AiLoader />
+                </motion.div>
               </motion.div>
+            )}
+          </AnimatePresence>
+          {isAuthenticated && (
+            <motion.div
+              initial="loading"
+              animate={isLoading ? "loading" : "visible"}
+              variants={{
+                loading: { clipPath: "circle(0% at 85% 75%)", filter: "blur(4px)", scale: 1.05 },
+                visible: { clipPath: "circle(150% at 85% 75%)", filter: "blur(0px)", scale: 1, transition: { duration: 1.2, ease: [0.76, 0, 0.24, 1] } }
+              }}
+              className="w-full h-screen overflow-hidden bg-[#0a0a0a]"
+            >
+              <MainContent />
             </motion.div>
           )}
-        </AnimatePresence>
-        {isAuthenticated && (
-          <motion.div
-            initial="loading"
-            animate={isLoading ? "loading" : "visible"}
-            variants={{
-              loading: { clipPath: "circle(0% at 85% 75%)", filter: "blur(10px)", scale: 1.05 },
-              visible: { clipPath: "circle(150% at 85% 75%)", filter: "blur(0px)", scale: 1, transition: { duration: 1.5, ease: [0.76, 0, 0.24, 1] } }
-            }}
-            className="w-full h-screen overflow-hidden bg-[#0a0a0a]"
-          >
-            <MainContent />
-          </motion.div>
-        )}
-      </PlayerProvider>
+        </PlayerProvider>
+      </FavoritesProvider>
     </ThemeProvider>
   );
 }

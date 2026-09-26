@@ -15,8 +15,6 @@ interface PlayerContextType {
   nextTrack: () => void;
   prevTrack: () => void;
   deviceId: string | null;
-  useSpotifyEmbed: boolean;
-  setUseSpotifyEmbed: (val: boolean) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -28,7 +26,6 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [progress, setProgress] = useState(0);
   const [queue, setQueue] = useState<Track[]>([]);
   const [deviceId, setDeviceId] = useState<string | null>(null);
-  const [useSpotifyEmbed, setUseSpotifyEmbed] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const spotifyPlayerRef = useRef<any>(null);
@@ -207,7 +204,7 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         console.warn('Transfer playback notice:', tErr);
       }
 
-      const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${targetDeviceId}`, {
+      let response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${targetDeviceId}`, {
         method: 'PUT',
         body: JSON.stringify({ uris: [uri] }),
         headers: {
@@ -216,10 +213,32 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         },
       });
 
+      if (response.status === 404) {
+        console.log('Got 404 from Spotify, waiting 1s and retrying...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Try transferring playback one more time with play: true
+        await fetch('https://api.spotify.com/v1/me/player', {
+          method: 'PUT',
+          body: JSON.stringify({ device_ids: [targetDeviceId], play: false }),
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        });
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${targetDeviceId}`, {
+          method: 'PUT',
+          body: JSON.stringify({ uris: [uri] }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+        });
+      }
+
       if (!response.ok) {
         const errDetails = await response.text();
         console.warn('Spotify play returned not ok status:', response.status, errDetails);
-        throw new Error(`Spotify playback failed: ${response.status} ${errDetails}`);
+        throw new Error(`Code ${response.status}: ${errDetails}. (DeviceID: ${targetDeviceId})`);
       }
 
       // Start manual progress polling since state_changed isn't frequent enough
@@ -232,13 +251,10 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           }
         }
       }, 1000);
-    } catch (e) {
-      console.warn('Spotify playback failed, switching to Spotify Embed player:', e);
-      if (track.spotifyUri) {
-        setUseSpotifyEmbed(true);
-      } else {
-        playFallback(track);
-      }
+    } catch (e: any) {
+      console.warn('Spotify playback failed, playing fallback local audio:', e);
+      alert(`Spotify Playback Error: ${e.message}\n\nPlease check your console for more details.`);
+      playFallback(track);
     }
   };
 
@@ -254,10 +270,6 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       audioRef.current.pause();
     }
     clearSpotifyInterval();
-
-    if (useSpotifyEmbed && track.spotifyUri) {
-      return;
-    }
 
     if (spotifyPlayerRef.current && typeof spotifyPlayerRef.current.activateElement === 'function') {
       spotifyPlayerRef.current.activateElement();
@@ -340,9 +352,7 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         seek,
         nextTrack,
         prevTrack,
-        deviceId,
-        useSpotifyEmbed,
-        setUseSpotifyEmbed
+        deviceId
       }}
     >
       {children}

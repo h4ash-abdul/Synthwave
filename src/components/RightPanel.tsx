@@ -172,8 +172,13 @@ export const RightPanel: React.FC<RightPanelProps> = ({ playlist, analysis }) =>
               </div>
               
               <div className="flex-1 flex flex-col gap-3 mt-2 overflow-y-auto pr-2 custom-scrollbar">
-                {playlist.tracks.map((track) => {
-                  const isActive = currentTrack?.id === track.id;
+                {playlist.tracks.length === 0 ? (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60 pt-8">
+                    <p className="text-white/60 text-sm">No tracks here yet. Add some to your favorites!</p>
+                  </div>
+                ) : (
+                  playlist.tracks.map((track) => {
+                    const isActive = currentTrack?.id === track.id;
                   return (
                     <div 
                       key={track.id} 
@@ -208,7 +213,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ playlist, analysis }) =>
                       )}
                     </div>
                   );
-                })}
+                }))}
               </div>
 
               <div className="shrink-0 mt-4 px-2 pb-2">
