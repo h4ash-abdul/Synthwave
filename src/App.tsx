@@ -73,14 +73,14 @@ const MainContent = () => {
       
       <div className="flex flex-col lg:flex-row w-full gap-6 z-10 flex-1 min-h-0">
         <div className="w-full lg:w-[52%] flex flex-col min-h-0">
-          <LeftPanel onGenerate={handleGenerate} onReset={handleReset} onShowFavorites={handleShowFavorites} />
+          <LeftPanel onGenerate={handleGenerate} onReset={handleReset} />
           <div className="lg:hidden w-full shrink-0">
             <MusicPlayer />
           </div>
         </div>
         
         <div className="hidden lg:flex lg:w-[48%] flex-col relative z-20 min-h-0">
-          <RightPanel playlist={playlist} analysis={analysis} />
+          <RightPanel playlist={playlist} analysis={analysis} onShowFavorites={handleShowFavorites} />
           <div className="w-full shrink-0">
             <MusicPlayer />
           </div>

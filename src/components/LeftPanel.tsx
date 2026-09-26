@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Loader2, RotateCcw, Clock, Bookmark, Heart } from 'lucide-react';
+import { Sparkles, Loader2, RotateCcw, Clock, Bookmark } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import Shuffle from './Shuffle';
 import OptionWheel from './OptionWheel';
 import { getThemeForVibeSync } from '../services/ai/vibeAnalyzer';
 
-export const LeftPanel: React.FC<{ onGenerate: (vibe: string) => void, onReset: () => void, onShowFavorites?: () => void }> = ({ onGenerate, onReset, onShowFavorites }) => {
+export const LeftPanel: React.FC<{ onGenerate: (vibe: string) => void, onReset: () => void }> = ({ onGenerate, onReset }) => {
   const [vibe, setVibe] = useState('');
   const [recentVibes, setRecentVibes] = useState<string[]>([]);
   const [savedVibes, setSavedVibes] = useState<string[]>([]);
@@ -105,14 +105,6 @@ export const LeftPanel: React.FC<{ onGenerate: (vibe: string) => void, onReset: 
                   {s}
                 </button>
               ))}
-            </div>
-          )}
-          {onShowFavorites && (
-            <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2">
-              <Heart className="w-3 h-3 shrink-0" style={{ color: currentColor }} />
-              <button onClick={onShowFavorites} className="text-xs text-white/80 border px-3 py-1 rounded-full whitespace-nowrap transition-colors hover:brightness-125 flex items-center gap-1.5" style={{ backgroundColor: `${currentColor}1A`, borderColor: `${currentColor}33` }}>
-                View Favorite Tracks
-              </button>
             </div>
           )}
           {recentVibes.length > 0 && (
