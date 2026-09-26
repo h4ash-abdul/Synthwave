@@ -96,6 +96,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(!!getStoredAccessToken());
   const [authError, setAuthError] = useState('');
+  const [isAnimating, setIsAnimating] = useState(true);
 
   useEffect(() => {
     const handleAuth = async () => {
@@ -161,6 +162,15 @@ function App() {
     <ThemeProvider>
       <FavoritesProvider>
         <PlayerProvider>
+          <style>
+            {`
+              .animating-clip-path .liquid-glass,
+              .animating-clip-path .liquid-glass-strong {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+              }
+            `}
+          </style>
           <AnimatePresence>
             {isLoading && (
               <motion.div
@@ -185,10 +195,13 @@ function App() {
               initial="loading"
               animate={isLoading ? "loading" : "visible"}
               variants={{
-                loading: { clipPath: "circle(0% at 85% 75%)", filter: "blur(4px)", scale: 1.05 },
-                visible: { clipPath: "circle(150% at 85% 75%)", filter: "blur(0px)", scale: 1, transition: { duration: 1.2, ease: [0.76, 0, 0.24, 1] } }
+                loading: { clipPath: "circle(0% at 85% 75%)" },
+                visible: { clipPath: "circle(150% at 85% 75%)", transition: { duration: 1.0, ease: [0.76, 0, 0.24, 1] } }
               }}
-              className="w-full h-screen overflow-hidden bg-[#0a0a0a]"
+              onAnimationStart={() => setIsAnimating(true)}
+              onAnimationComplete={() => setIsAnimating(false)}
+              className={`w-full h-screen overflow-hidden bg-[#0a0a0a] ${isAnimating || isLoading ? 'animating-clip-path' : ''}`}
+              style={{ willChange: "clip-path" }}
             >
               <MainContent />
             </motion.div>

@@ -12,7 +12,7 @@ export const AmbientBackground: React.FC = () => {
         muted
         playsInline
         className="w-full h-full object-cover opacity-90"
-        style={{ filter: 'contrast(1.15) saturate(1.2) brightness(0.95)' }}
+        style={{ filter: 'contrast(1.15) saturate(1.2) brightness(0.95)', willChange: 'transform', transform: 'translateZ(0)' }}
       >
         <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4" type="video/mp4" />
       </video>
